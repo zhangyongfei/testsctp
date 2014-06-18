@@ -7,10 +7,10 @@ AddDefsLinux("-D__Userspace_os_Linux")
 
 #添加源文件路径
 SET(SOURCE_LIST)
-AddSrcDir(SOURCE_LIST ${CMAKE_CURRENT_LIST_DIR}/netinet
-${CMAKE_CURRENT_LIST_DIR}/netinet6
-${CMAKE_CURRENT_LIST_DIR})
+AddSrcDir(SOURCE_LIST ${CMAKE_CURRENT_LIST_DIR}/netinet)
+AddSrcDir(SOURCE_LIST ${CMAKE_CURRENT_LIST_DIR}/netinet6)
+AddSrcDir(SOURCE_LIST ${CMAKE_CURRENT_LIST_DIR})
 
-StaticLib(usrsctplib ${SOURCE_LIST})
+StaticLib(usrsctplib SOURCE_LIST LIB_LIST)
 
 

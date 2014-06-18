@@ -10,11 +10,14 @@ SET(LIB_LIST)
 AddLibsWin32(LIB_LIST
 ws2_32)
 AddLibsLinux(LIB_LIST
-ws2_32)
+pthread)
+
+AddSrc(SOURCE_LIST
+${CMAKE_CURRENT_LIST_DIR}/testclient.cc)
 
 AppPrj(testclient 
-${CMAKE_CURRENT_LIST_DIR}/testclient.cc
-${LIB_LIST})
+SOURCE_LIST
+LIB_LIST)
 
 AddSubPrj(./usrsctplib)
 
