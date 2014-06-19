@@ -48,32 +48,24 @@ receive_cb(struct socket *sock, union sctp_sockstore addr, void *data,
 void
 debug_printf(const char *format, ...)
 {
-	char buffer[4096] = {0};
 	va_list ap;
 
 	va_start(ap, format);
-#ifdef WIN32
-	vsprintf_s(buffer, 4095, format, ap);
-#else
-	vsnprintf(buffer, 4095, format, ap);
-#endif
+	vprintf(format, ap);
 	va_end(ap);
-#ifdef _WIN32
-	_write(_fileno(stdout), buffer, strlen(buffer));
-#else
-	if (write(fileno(stdout), buffer, strlen(buffer)) < 0) {
-		perror("write");
-	}
-#endif
 }
+
+
 
 int
 main(int argc, char *argv[])
 {
+	WSADATA data;
+	::WSAStartup(0x0002, &data);
 	struct socket *sock;
 	struct sockaddr *addr, *addrs;
 	struct sockaddr_in addr4;
-	struct sockaddr_in6 addr6;
+	struct sockaddr_in addr6;
 	struct sctp_udpencaps encaps;
 	struct sctpstat stat;
 	char buffer[80];
@@ -88,31 +80,31 @@ main(int argc, char *argv[])
 	usrsctp_sysctl_set_sctp_debug_on(SCTP_DEBUG_ALL);
 #endif
 	usrsctp_sysctl_set_sctp_blackhole(2);
-	if ((sock = usrsctp_socket(AF_INET6, SOCK_STREAM, IPPROTO_SCTP, receive_cb, NULL, 0, NULL)) == NULL) {
+	if ((sock = usrsctp_socket(AF_INET, SOCK_STREAM, IPPROTO_SCTP, receive_cb, NULL, 0, NULL)) == NULL) {
 		perror("usrsctp_socket");
 	}
 	if (argc > 3) {
-		memset((void *)&addr6, 0, sizeof(struct sockaddr_in6));
+		memset((void *)&addr6, 0, sizeof(struct sockaddr_in));
 #ifdef HAVE_SIN6_LEN
 		addr6.sin6_len = sizeof(struct sockaddr_in6);
 #endif
-		addr6.sin6_family = AF_INET6;
-		addr6.sin6_port = htons(atoi(argv[3]));
-		addr6.sin6_addr = in6addr_any;
-		if (usrsctp_bind(sock, (struct sockaddr *)&addr6, sizeof(struct sockaddr_in6)) < 0) {
+		addr6.sin_family = AF_INET;
+		addr6.sin_port = htons(atoi(argv[3]));
+		addr6.sin_addr.s_addr = INADDR_ANY;
+		if (usrsctp_bind(sock, (struct sockaddr *)&addr6, sizeof(struct sockaddr_in)) < 0) {
 			perror("bind");
 		}
 	}
 	if (argc > 5) {
 		memset(&encaps, 0, sizeof(struct sctp_udpencaps));
-		encaps.sue_address.ss_family = AF_INET6;
+		encaps.sue_address.ss_family = AF_INET;
 		encaps.sue_port = htons(atoi(argv[5]));
 		if (usrsctp_setsockopt(sock, IPPROTO_SCTP, SCTP_REMOTE_UDP_ENCAPS_PORT, (const void*)&encaps, (socklen_t)sizeof(struct sctp_udpencaps)) < 0) {
 			perror("setsockopt");
 		}
 	}
 	memset((void *)&addr4, 0, sizeof(struct sockaddr_in));
-	memset((void *)&addr6, 0, sizeof(struct sockaddr_in6));
+	memset((void *)&addr6, 0, sizeof(struct sockaddr_in));
 #ifdef HAVE_SIN_LEN
 	addr4.sin_len = sizeof(struct sockaddr_in);
 #endif
@@ -120,10 +112,10 @@ main(int argc, char *argv[])
 	addr6.sin6_len = sizeof(struct sockaddr_in6);
 #endif
 	addr4.sin_family = AF_INET;
-	addr6.sin6_family = AF_INET6;
+	addr6.sin_family = AF_INET;
 	addr4.sin_port = htons(atoi(argv[2]));
-	addr6.sin6_port = htons(atoi(argv[2]));
-	if (inet_pton(AF_INET6, argv[1], &addr6.sin6_addr) == 1) {
+	addr6.sin_port = htons(atoi(argv[2]));
+	if (inet_pton(AF_INET, argv[1], &addr6.sin_addr) == 1) {
 		if (usrsctp_connect(sock, (struct sockaddr *)&addr6, sizeof(struct sockaddr_in6)) < 0) {
 			perror("usrsctp_connect");
 		}

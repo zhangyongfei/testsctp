@@ -14,7 +14,7 @@ AddLibsLinux(LIB_LIST
 usrsctplib
 pthread)
 
-AddDefs("-DSCTP_DEBUG")
+AddDefs("-DSCTP_DEBUG -DINET")
 
 AddHDir(${CMAKE_CURRENT_LIST_DIR}/usrsctplib)
 
