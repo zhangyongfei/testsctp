@@ -34,3 +34,11 @@ LIB_LIST)
 
 AddSubPrj(./usrsctplib)
 
+SET(SOURCE_LIST
+${CMAKE_CURRENT_LIST_DIR}/SctpWrapper.cpp
+${CMAKE_CURRENT_LIST_DIR}/clientDemo.cc)
+
+AppPrj(clientDemo 
+SOURCE_LIST
+LIB_LIST)
+
